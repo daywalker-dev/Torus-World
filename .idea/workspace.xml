@@ -5,46 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="505af13e-4214-44b1-b320-17bfbbe252a4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/9.3.0/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.3.0/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.3.0/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.3.0/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.3.0/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.3.0/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.3.0/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.3.0/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.3.0/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.3.0/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/TorusChunkGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/TorusChunkGenerator.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/WorldSize.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/CheckerboardColumnBiomeSourceMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/FixedBiomeSourceMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/MultiNoiseBiomeSourceMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/NoiseBasedChunkGeneratorMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/NoiseChunkMixin.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/NoiseChunkMixin.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/SurfaceRulesContextMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/base/worldsize/mixin/WorldSizeMixin.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/TorusChunkGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/TorusChunkGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/TorusConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/TorusRandomState.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/WorldSize.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/WorldSize.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/WrappedBiomeSource.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/WrappedDensityFunction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/WrappedNoiseRouter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/CarverContextMixin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/CheckerboardColumnBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/CheckerboardColumnBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FeaturePlaceContextMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FeaturePlaceContextMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FixedBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FixedBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/MultiNoiseBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/MultiNoiseBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/NoiseBasedChunkGeneratorMixin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/NoiseChunkMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/NoiseChunkMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/SurfaceRulesContextMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/SurfaceRulesContextMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/WorldSizeMixin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/worldsize.mixins.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/worldsize.mixins.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/claude_logging.txt" beforeDir="false" afterPath="$PROJECT_DIR$/claude_logging.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -60,6 +34,8 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.Torus-World [:net.fabricmc.devlaunchinjector.Main.main()].executor": "Run",
+    "Gradle.Torus-World.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -67,9 +43,10 @@
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/zacharris/Documents/for_personal_projects/Torus-World",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.grazie"
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
 }]]></component>
+  <component name="RunManager" selected="Application.Minecraft Client" />
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
