@@ -6,43 +6,38 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.core.Holder;
+import net.minecraft.world.level.biome.CheckerboardColumnBiomeSource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.minecraft.world.level.biome.CheckerboardColumnBiomeSource;
 
 /**
- * Wraps the biome source coordinate lookups.
- *
- * BiomeSource.getNoiseBiome() takes quart coordinates (block >> 2).
- * We wrap these to ensure biomes repeat on the torus.json grid.
- *
- * Note: In modern Minecraft, biome coordinates are at 1/4 block resolution (quart coords).
- * So we need to wrap at WORLD_SIZE_BLOCKS / 4 = WORLD_SIZE_BLOCKS >> 2.
+ * Wraps biome coordinate lookups for CheckerboardColumnBiomeSource.
+ * Uses a ThreadLocal recursion guard (same-thread recursive call).
  */
-
-//@Mixin(BiomeSource.class)
 @Mixin(CheckerboardColumnBiomeSource.class)
 public abstract class CheckerboardColumnBiomeSourceMixin {
+
+    @Unique
+    private static final ThreadLocal<Boolean> worldsize$wrapping = ThreadLocal.withInitial(() -> false);
 
     @Inject(method = "getNoiseBiome", at = @At("HEAD"), cancellable = true)
     private void wrapBiomeCoordinates(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
                                       CallbackInfoReturnable<Holder<Biome>> cir) {
-        if (TorusChunkGenerator.isTorusActive()) {
-            int quartSize = WorldSize.WORLD_SIZE_BLOCKS >> 2; // quart coords
+        if (TorusChunkGenerator.isTorusActive() && !worldsize$wrapping.get()) {
+            int quartSize = WorldSize.WORLD_SIZE_BLOCKS >> 2;
             int wrappedX = Math.floorMod(quartX, quartSize);
             int wrappedZ = Math.floorMod(quartZ, quartSize);
 
             if (wrappedX != quartX || wrappedZ != quartZ) {
-                // Call the method again with wrapped coordinates, but disable torus.json
-                // to prevent infinite recursion
-                TorusChunkGenerator.setTorusActive(false);
+                worldsize$wrapping.set(true);
                 try {
                     Holder<Biome> result = ((BiomeSource)(Object)this).getNoiseBiome(wrappedX, quartY, wrappedZ, sampler);
                     cir.setReturnValue(result);
                 } finally {
-                    TorusChunkGenerator.setTorusActive(true);
+                    worldsize$wrapping.set(false);
                 }
             }
         }

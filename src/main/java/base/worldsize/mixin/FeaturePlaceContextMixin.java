@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Wraps feature placement origins (trees, ores, lakes, structures) to match torus coordinates.
+ * Wraps feature placement origins (trees, ores, lakes, etc.) to match torus coordinates.
  */
 @Mixin(FeaturePlaceContext.class)
 public abstract class FeaturePlaceContextMixin {
@@ -19,11 +19,11 @@ public abstract class FeaturePlaceContextMixin {
     private void wrapOrigin(CallbackInfoReturnable<BlockPos> cir) {
         if (TorusChunkGenerator.isTorusActive()) {
             BlockPos pos = cir.getReturnValue();
-            cir.setReturnValue(new BlockPos(
-                    WorldSize.wrapBlock(pos.getX()),
-                    pos.getY(),
-                    WorldSize.wrapBlock(pos.getZ())
-            ));
+            int wrappedX = WorldSize.wrapBlock(pos.getX());
+            int wrappedZ = WorldSize.wrapBlock(pos.getZ());
+            if (wrappedX != pos.getX() || wrappedZ != pos.getZ()) {
+                cir.setReturnValue(new BlockPos(wrappedX, pos.getY(), wrappedZ));
+            }
         }
     }
 }
