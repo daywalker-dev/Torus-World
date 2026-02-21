@@ -1,0 +1,153 @@
+---- Minecraft Crash Report ----
+// Don't do that.
+
+Time: 2026-02-10 18:43:02
+Description: Exception chunk generation/loading
+
+java.lang.BootstrapMethodError: java.lang.RuntimeException: Mixin transformation of net.minecraft.world.level.levelgen.NoiseChunk failed
+	at knot//net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator.doCreateBiomes(NoiseBasedChunkGenerator.java:100)
+	at knot//net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator.method_38333(NoiseBasedChunkGenerator.java:94)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.exec(CompletableFuture.java:1781)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+Caused by: java.lang.RuntimeException: Mixin transformation of net.minecraft.world.level.levelgen.NoiseChunk failed
+	at net.fabricmc.loader.impl.launch.knot.KnotClassDelegate.getPostMixinClassByteArray(KnotClassDelegate.java:440)
+	at net.fabricmc.loader.impl.launch.knot.KnotClassDelegate.tryLoadClass(KnotClassDelegate.java:336)
+	at net.fabricmc.loader.impl.launch.knot.KnotClassDelegate.loadClass(KnotClassDelegate.java:231)
+	at net.fabricmc.loader.impl.launch.knot.KnotClassLoader.loadClass(KnotClassLoader.java:119)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:490)
+	... 8 more
+Caused by: org.spongepowered.asm.mixin.transformer.throwables.MixinTransformerError: An unexpected critical error was encountered
+	at org.spongepowered.asm.mixin.transformer.MixinProcessor.applyMixins(MixinProcessor.java:381)
+	at org.spongepowered.asm.mixin.transformer.MixinTransformer.transformClass(MixinTransformer.java:237)
+	at org.spongepowered.asm.mixin.transformer.MixinTransformer.transformClassBytes(MixinTransformer.java:202)
+	at net.fabricmc.loader.impl.launch.knot.KnotClassDelegate.getPostMixinClassByteArray(KnotClassDelegate.java:435)
+	... 12 more
+Caused by: org.spongepowered.asm.mixin.throwables.MixinApplyError: Mixin [worldsize.mixins.json:WorldSizeMixin from mod worldsize] from phase [DEFAULT] in config [worldsize.mixins.json] FAILED during APPLY
+	at org.spongepowered.asm.mixin.transformer.MixinProcessor.handleMixinError(MixinProcessor.java:686)
+	at org.spongepowered.asm.mixin.transformer.MixinProcessor.handleMixinApplyError(MixinProcessor.java:637)
+	at org.spongepowered.asm.mixin.transformer.MixinProcessor.applyMixins(MixinProcessor.java:368)
+	... 15 more
+Caused by: org.spongepowered.asm.mixin.injection.throwables.InvalidInjectionException: Critical injection failure: @ModifyArg annotation on wrapBaseHeightX could not find any targets matching 'getBaseHeight' in net/minecraft/world/level/levelgen/NoiseChunk. No refMap loaded. [INJECT_PREPARE Applicator Phase -> worldsize.mixins.json:WorldSizeMixin from mod worldsize -> Prepare Injections -> modify$zdi000$worldsize$wrapBaseHeightX(I)I -> Parse ->  -> Validate Targets]
+	at org.spongepowered.asm.mixin.injection.selectors.TargetSelectors.validate(TargetSelectors.java:346)
+	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.readAnnotation(InjectionInfo.java:369)
+	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.<init>(InjectionInfo.java:340)
+	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.<init>(InjectionInfo.java:331)
+	at org.spongepowered.asm.mixin.injection.struct.ModifyArgInjectionInfo.<init>(ModifyArgInjectionInfo.java:47)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:483)
+	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo$InjectorEntry.create(InjectionInfo.java:196)
+	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.parse(InjectionInfo.java:664)
+	at org.spongepowered.asm.mixin.transformer.MixinTargetContext.prepareInjections(MixinTargetContext.java:1396)
+	at org.spongepowered.asm.mixin.transformer.MixinApplicatorStandard.prepareInjections(MixinApplicatorStandard.java:731)
+	at org.spongepowered.asm.mixin.transformer.MixinApplicatorStandard.applyMixin(MixinApplicatorStandard.java:315)
+	at org.spongepowered.asm.mixin.transformer.MixinApplicatorStandard.apply(MixinApplicatorStandard.java:246)
+	at org.spongepowered.asm.mixin.transformer.TargetClassContext.apply(TargetClassContext.java:437)
+	at org.spongepowered.asm.mixin.transformer.TargetClassContext.applyMixins(TargetClassContext.java:418)
+	at org.spongepowered.asm.mixin.transformer.MixinProcessor.applyMixins(MixinProcessor.java:352)
+	... 15 more
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.11
+	Minecraft Version ID: 1.21.11
+	Operating System: Linux (amd64) version 6.18.7-arch1-1
+	Java Version: 25.0.2, Arch Linux
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Arch Linux
+	Memory: 280918952 bytes (267 MiB) / 2667577344 bytes (2544 MiB) up to 16793993216 bytes (16016 MiB)
+	CPUs: 16
+	Processor Vendor: GenuineIntel
+	Processor Name: 13th Gen Intel(R) Core(TM) i9-13900K
+	Identifier: Intel64 Family 6 Model 183 Stepping 1
+	Microarchitecture: Raptor Lake
+	Frequency (GHz): -0.00
+	Number of physical packages: 1
+	Number of physical CPUs: 24
+	Number of logical CPUs: 32
+	Graphics card #0 name: GB202 [GeForce RTX 5090]
+	Graphics card #0 vendor: NVIDIA Corporation (0x10de)
+	Graphics card #0 VRAM (MiB): 32800.00
+	Graphics card #0 deviceId: 0x2b85
+	Graphics card #0 versionInfo: unknown
+	Virtual memory max (MiB): 47886.01
+	Virtual memory used (MiB): 10497.06
+	Swap memory total (MiB): 15869.00
+	Swap memory used (MiB): 0.00
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 32005.38, total: 32017.01
+	Space in storage for workdir (MiB): available: 1212645.25, total: 1860557.38
+	JVM Flags: 0 total; 
+	Debug Flags: 0 total; 
+	Fabric Mods: 
+		fabric-api: Fabric API 0.141.3+1.21.11
+		fabric-api-base: Fabric API Base 1.0.5+4ebb5c083e
+		fabric-api-lookup-api-v1: Fabric API Lookup API (v1) 1.6.114+20dc27073e
+		fabric-biome-api-v1: Fabric Biome API (v1) 17.1.1+4fc5413f3e
+		fabric-block-api-v1: Fabric Block API (v1) 1.1.10+4ebb5c083e
+		fabric-block-view-api-v2: Fabric BlockView API (v2) 1.0.39+4ebb5c083e
+		fabric-client-gametest-api-v1: Fabric Client Game Test API (v1) 4.3.5+bfe9fcf43e
+		fabric-command-api-v2: Fabric Command API (v2) 2.4.7+6b42a6003e
+		fabric-content-registries-v0: Fabric Content Registries (v0) 10.2.14+4fc5413f3e
+		fabric-convention-tags-v1: Fabric Convention Tags 2.1.55+7f945d5b3e
+		fabric-convention-tags-v2: Fabric Convention Tags (v2) 2.17.3+8ef948ba3e
+		fabric-crash-report-info-v1: Fabric Crash Report Info (v1) 0.3.23+4ebb5c083e
+		fabric-data-attachment-api-v1: Fabric Data Attachment API (v1) 1.8.47+eed0806f3e
+		fabric-data-generation-api-v1: Fabric Data Generation API (v1) 23.4.0+69974c4e3e
+		fabric-dimensions-v1: Fabric Dimensions API (v1) 4.0.28+4fc5413f3e
+		fabric-entity-events-v1: Fabric Entity Events (v1) 3.1.1+1d0ab4303e
+		fabric-events-interaction-v0: Fabric Events Interaction (v0) 4.1.0+3b89ecf63e
+		fabric-game-rule-api-v1: Fabric Game Rule API (v1) 2.0.3+4fc5413f3e
+		fabric-gametest-api-v1: Fabric Game Test API (v1) 3.1.27+4fc5413f3e
+		fabric-item-api-v1: Fabric Item API (v1) 11.5.20+d0c46b9e3e
+		fabric-item-group-api-v1: Fabric Item Group API (v1) 4.2.36+4fc5413f3e
+		fabric-key-binding-api-v1: Fabric Key Binding API (v1) 1.1.7+4fc5413f3e
+		fabric-lifecycle-events-v1: Fabric Lifecycle Events (v1) 2.6.15+4ebb5c083e
+		fabric-loot-api-v2: Fabric Loot API (v2) 3.0.73+3f89f5a53e
+		fabric-loot-api-v3: Fabric Loot API (v3) 2.0.20+78c8b4663e
+		fabric-message-api-v1: Fabric Message API (v1) 6.1.12+4ebb5c083e
+		fabric-model-loading-api-v1: Fabric Model Loading API (v1) 6.0.15+4fc5413f3e
+		fabric-networking-api-v1: Fabric Networking API (v1) 5.1.5+ae1e07683e
+		fabric-object-builder-api-v1: Fabric Object Builder API (v1) 21.1.39+4fc5413f3e
+		fabric-particles-v1: Fabric Particles (v1) 4.2.11+4fc5413f3e
+		fabric-recipe-api-v1: Fabric Recipe API (v1) 8.2.3+4ebb5c083e
+		fabric-registry-sync-v0: Fabric Registry Sync (v0) 6.2.5+1718722b3e
+		fabric-renderer-api-v1: Fabric Renderer API (v1) 8.0.3+f4ffd2e53e
+		fabric-renderer-indigo: Fabric Renderer - Indigo 5.0.3+f4ffd2e53e
+		fabric-rendering-fluids-v1: Fabric Rendering Fluids (v1) 3.1.43+4ebb5c083e
+		fabric-rendering-v1: Fabric Rendering (v1) 16.2.10+0290ad933e
+		fabric-resource-conditions-api-v1: Fabric Resource Conditions API (v1) 5.0.35+4fc5413f3e
+		fabric-resource-loader-v0: Fabric Resource Loader (v0) 3.3.4+4fc5413f3e
+		fabric-resource-loader-v1: Fabric Resource Loader (v1) 1.0.10+78c8b4663e
+		fabric-screen-api-v1: Fabric Screen API (v1) 3.1.7+4ebb5c083e
+		fabric-screen-handler-api-v1: Fabric Screen Handler API (v1) 1.3.161+4fc5413f3e
+		fabric-serialization-api-v1: Fabric Serialization API (v1) 1.0.5+4ebb5c083e
+		fabric-sound-api-v1: Fabric Sound API (v1) 1.0.51+4fc5413f3e
+		fabric-tag-api-v1: Fabric Tag API (v1) 1.2.20+4fc5413f3e
+		fabric-transfer-api-v1: Fabric Transfer API (v1) 6.0.25+4fc5413f3e
+		fabric-transitive-access-wideners-v1: Fabric Transitive Access Wideners (v1) 7.1.0+014c8cec3e
+		fabricloader: Fabric Loader 0.18.4
+		java: OpenJDK 64-Bit Server VM 25
+		minecraft: Minecraft 1.21.11
+		mixinextras: MixinExtras 0.5.0
+		worldsize: WorldSize 1.0.0
+	Server Running: true
+	Player Count: 1 / 8; [ServerPlayer['Player658'/70, l='ServerLevel[Test]', x=388.21, y=93.46, z=328.57]]
+	Active Data Packs: vanilla, fabric-convention-tags-v2, fabric-gametest-api-v1
+	Available Data Packs: fabric-convention-tags-v2, fabric-gametest-api-v1, minecart_improvements, redstone_experiments, trade_rebalance, vanilla
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: 3004894639927924854
+	Suppressed Exceptions: ~~NONE~~
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fabric'; Server brand changed to 'fabric'
+	Launched Version: Fabric
