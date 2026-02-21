@@ -12,15 +12,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Wraps SurfaceRules.Context X/Z coordinates for torus worlds.
  *
- * FIXES from previous version:
- * 1. Inject at TAIL, not HEAD. The original updateXZ() method sets blockX/blockZ
- *    from its parameters. If we inject at HEAD, the original method overwrites
- *    our wrapped values immediately after. At TAIL, we wrap AFTER the original
- *    method has finished setting the fields.
+ * Surface rules receive block coordinates from the chunk's real world position.
+ * Even though NoiseChunk now has wrapped startBlockX/Z, the SurfaceRules.Context
+ * updateXZ() is called with the REAL chunk block coordinates. We need to wrap
+ * these so that surface decoration (grass, sand, etc.) matches the wrapped terrain.
  *
- * 2. Use WORLD_SIZE_BLOCKS, not WORLD_SIZE_BLOCKS >> 2. The updateXZ method
- *    receives BLOCK coordinates, not quart coordinates. The previous code
- *    incorrectly divided by 4, which would wrap at 256 instead of 1024.
+ * KEY: Inject at TAIL (not HEAD), because the original method sets blockX/blockZ
+ * from its parameters. Injecting at HEAD would get overwritten.
+ *
+ * Uses WORLD_SIZE_BLOCKS (block coordinates), NOT WORLD_SIZE_BLOCKS >> 2 (quart).
  */
 @Mixin(targets = "net.minecraft.world.level.levelgen.SurfaceRules$Context")
 public abstract class SurfaceRulesContextMixin {
@@ -31,10 +31,6 @@ public abstract class SurfaceRulesContextMixin {
     @Shadow
     protected int blockZ;
 
-    /**
-     * Wrap coordinates AFTER the original updateXZ has set them.
-     * Using TAIL ensures we modify the already-set values.
-     */
     @Inject(method = "updateXZ", at = @At("TAIL"))
     private void wrapUpdateXZ(int x, int z, CallbackInfo ci) {
         if (TorusChunkGenerator.isTorusActive()) {

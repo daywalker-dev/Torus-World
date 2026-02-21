@@ -5,78 +5,80 @@ import base.worldsize.WorldSize;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /**
  * THIS IS THE CRITICAL MIXIN that makes terrain wrapping actually work.
  *
- * NoiseChunk implements DensityFunction.FunctionContext, which provides blockX(), blockY(), blockZ()
- * to ALL density functions during terrain generation. By wrapping blockX() and blockZ() here,
- * every noise function, every density calculation will see wrapped coordinates.
+ * PREVIOUS APPROACH (BROKEN - ArrayIndexOutOfBoundsException in Aquifer):
+ * -----------------------------------------------------------------------
+ * We wrapped the return values of blockX()/blockZ(). This caused:
+ *   ArrayIndexOutOfBoundsException: Index 386 out of bounds for length 315
+ *     at Aquifer$NoiseBasedAquifer.computeSubstance
  *
- * WHY THE PREVIOUS VERSION FAILED:
- * The old code checked a ThreadLocal<Boolean> flag. But NoiseBasedChunkGenerator.fillFromNoise()
- * runs its work on background threads via CompletableFuture.supplyAsync(). ThreadLocal values
- * do NOT propagate to worker threads — so blockX()/blockZ() on the worker thread always saw
- * the flag as false and never wrapped.
+ * WHY IT CRASHED:
+ * NoiseChunk is constructed for a specific chunk at specific world coordinates.
+ * Internally, Aquifer$NoiseBasedAquifer allocates fixed-size arrays based on
+ * the chunk's cell grid (derived from cellStartBlockX/Z). When our mixin
+ * changed blockX() from 1030 to 6 (wrapped), the Aquifer tried to compute a
+ * grid index relative to the original cellStartBlockX=1024. The wrapped
+ * coordinate 6 was outside the grid's range → array index out of bounds.
  *
  * THE FIX:
- * TorusChunkGenerator now uses a static volatile boolean (not ThreadLocal). Once a torus world
- * is created, the flag is true globally on ALL threads. This mixin's check now works correctly
- * on the async worker threads where noise computation actually happens.
+ * --------
+ * Instead of wrapping blockX()/blockZ() AFTER construction, we wrap the
+ * startBlockX/startBlockZ coordinates DURING NoiseChunk construction.
  *
- * In Mojang mappings (1.20.4 and 1.21.11):
- *   NoiseChunk.blockX() returns this.cellStartBlockX + this.inCellX
- *   NoiseChunk.blockZ() returns this.cellStartBlockZ + this.inCellZ
+ * NoiseChunk.forChunk() is the static factory that creates a NoiseChunk from
+ * a ChunkAccess. It extracts the chunk's start block position and passes it
+ * to the NoiseChunk constructor. We intercept those parameters and wrap them.
+ *
+ * This means the entire NoiseChunk "thinks" it's at the wrapped position:
+ * - Aquifer arrays are allocated for the wrapped grid position (no OOB)
+ * - blockX()/blockZ() naturally return wrapped values (cellStartBlockX + inCellX)
+ * - All density functions see wrapped coordinates automatically
+ * - Chunk at world position (1024, 0) generates terrain identical to (0, 0)
+ *
+ * The actual block data still gets written to the correct ChunkAccess at the
+ * real world position — only the NOISE SAMPLING sees wrapped coordinates.
+ *
+ * NoiseChunk constructor params (Mojang mappings 1.21.11):
+ *   (int cellCountXZ, RandomState, int startBlockX, int startBlockZ,
+ *    NoiseSettings, BeardifierOrMarker, NoiseGeneratorSettings,
+ *    FluidPicker, Blender)
+ *
+ * startBlockX is at index 2, startBlockZ is at index 3.
  */
 @Mixin(NoiseChunk.class)
 public abstract class NoiseChunkMixin {
 
-    @Inject(method = "blockX", at = @At("RETURN"), cancellable = true)
-    private void wrapBlockX(CallbackInfoReturnable<Integer> cir) {
+    /**
+     * Wrap startBlockX (constructor param index 2) in forChunk's call to new NoiseChunk(...).
+     */
+    @ModifyArg(
+            method = "forChunk",
+            at = @At(value = "INVOKE", target = "<init>"),
+            index = 2
+    )
+    private static int wrapStartBlockX(int startBlockX) {
         if (TorusChunkGenerator.isTorusActive()) {
-            int original = cir.getReturnValue();
-            int wrapped = WorldSize.wrapBlock(original);
-            if (wrapped != original) {
-                cir.setReturnValue(wrapped);
-            }
+            return WorldSize.wrapBlock(startBlockX);
         }
-    }
-
-    @Inject(method = "blockZ", at = @At("RETURN"), cancellable = true)
-    private void wrapBlockZ(CallbackInfoReturnable<Integer> cir) {
-        if (TorusChunkGenerator.isTorusActive()) {
-            int original = cir.getReturnValue();
-            int wrapped = WorldSize.wrapBlock(original);
-            if (wrapped != original) {
-                cir.setReturnValue(wrapped);
-            }
-        }
+        return startBlockX;
     }
 
     /**
-     * Wrap the X parameter of preliminarySurfaceLevel(int x, int z).
-     * This method receives raw block coordinates that bypass blockX()/blockZ().
-     * Used for surface height estimation during decoration.
+     * Wrap startBlockZ (constructor param index 3) in forChunk's call to new NoiseChunk(...).
      */
-    @ModifyVariable(method = "preliminarySurfaceLevel", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private int wrapPrelimSurfaceX(int x) {
+    @ModifyArg(
+            method = "forChunk",
+            at = @At(value = "INVOKE", target = "<init>"),
+            index = 3
+    )
+    private static int wrapStartBlockZ(int startBlockZ) {
         if (TorusChunkGenerator.isTorusActive()) {
-            return WorldSize.wrapBlock(x);
+            return WorldSize.wrapBlock(startBlockZ);
         }
-        return x;
-    }
-
-    /**
-     * Wrap the Z parameter of preliminarySurfaceLevel(int x, int z).
-     */
-    @ModifyVariable(method = "preliminarySurfaceLevel", at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private int wrapPrelimSurfaceZ(int z) {
-        if (TorusChunkGenerator.isTorusActive()) {
-            return WorldSize.wrapBlock(z);
-        }
-        return z;
+        return startBlockZ;
     }
 }

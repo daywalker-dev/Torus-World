@@ -13,10 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Wraps biome coordinate lookups for TheEndBiomeSource.
- * Uses a ThreadLocal recursion guard (same-thread recursive call).
- */
 @Mixin(TheEndBiomeSource.class)
 public abstract class TheEndBiomeSourceMixin {
 
