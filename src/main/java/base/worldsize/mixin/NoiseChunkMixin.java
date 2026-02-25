@@ -3,7 +3,7 @@ package base.worldsize.mixin;
 import base.worldsize.TorusChunkGenerator;
 import base.worldsize.WorldSize;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -68,7 +68,7 @@ public abstract class NoiseChunkMixin {
             method = "forChunk",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/chunk/ChunkPos;"
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"
             )
     )
     private static ChunkPos wrapChunkPosInForChunk(ChunkAccess chunk) {
