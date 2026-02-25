@@ -6,12 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="505af13e-4214-44b1-b320-17bfbbe252a4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/CheckerboardColumnBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/CheckerboardColumnBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FixedBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/FixedBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/MultiNoiseBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/MultiNoiseBiomeSourceMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/NoiseChunkMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/NoiseChunkMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/SurfaceRulesContextMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/SurfaceRulesContextMixin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/TheEndBiomeSourceMixin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/base/worldsize/mixin/TheEndBiomeSourceMixin.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
