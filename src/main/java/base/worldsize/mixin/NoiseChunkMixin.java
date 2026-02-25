@@ -2,38 +2,24 @@ package base.worldsize.mixin;
 
 import base.worldsize.TorusChunkGenerator;
 import base.worldsize.WorldSize;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkPos;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * THIS IS THE CRITICAL MIXIN that makes terrain wrapping actually work.
  *
- * PREVIOUS APPROACH (BROKEN - ArrayIndexOutOfBoundsException in Aquifer):
- * -----------------------------------------------------------------------
- * We wrapped the return values of blockX()/blockZ(). This caused:
- *   ArrayIndexOutOfBoundsException: Index 386 out of bounds for length 315
- *     at Aquifer$NoiseBasedAquifer.computeSubstance
- *
- * WHY IT CRASHED:
- * NoiseChunk is constructed for a specific chunk at specific world coordinates.
- * Internally, Aquifer$NoiseBasedAquifer allocates fixed-size arrays based on
- * the chunk's cell grid (derived from cellStartBlockX/Z). When our mixin
- * changed blockX() from 1030 to 6 (wrapped), the Aquifer tried to compute a
- * grid index relative to the original cellStartBlockX=1024. The wrapped
- * coordinate 6 was outside the grid's range → array index out of bounds.
- *
- * THE FIX:
- * --------
- * Instead of wrapping blockX()/blockZ() AFTER construction, we wrap the
- * startBlockX/startBlockZ coordinates DURING NoiseChunk construction.
- *
+ * HOW IT WORKS:
  * NoiseChunk.forChunk() is the static factory that creates a NoiseChunk from
- * a ChunkAccess. It extracts the chunk's start block position and passes it
- * to the NoiseChunk constructor. We intercept those parameters and wrap them.
+ * a ChunkAccess. It calls chunk.getPos() to extract the chunk's position, then
+ * uses getMinBlockX()/getMinBlockZ() to get start block coordinates which are
+ * passed to the NoiseChunk constructor.
  *
- * This means the entire NoiseChunk "thinks" it's at the wrapped position:
+ * We intercept the getPos() call and return a WRAPPED ChunkPos. This means the
+ * entire NoiseChunk "thinks" it's at the wrapped position:
  * - Aquifer arrays are allocated for the wrapped grid position (no OOB)
  * - blockX()/blockZ() naturally return wrapped values (cellStartBlockX + inCellX)
  * - All density functions see wrapped coordinates automatically
@@ -42,43 +28,59 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
  * The actual block data still gets written to the correct ChunkAccess at the
  * real world position — only the NOISE SAMPLING sees wrapped coordinates.
  *
- * NoiseChunk constructor params (Mojang mappings 1.21.11):
- *   (int cellCountXZ, RandomState, int startBlockX, int startBlockZ,
- *    NoiseSettings, BeardifierOrMarker, NoiseGeneratorSettings,
- *    FluidPicker, Blender)
+ * BUG FIX (from previous version):
+ * --------------------------------
+ * The previous mixin used @ModifyArg with `target = "<init>"` WITHOUT a class
+ * qualifier. This is AMBIGUOUS because NoiseChunk.forChunk() contains MULTIPLE
+ * constructor invocations — not just `new NoiseChunk(...)`, but also helper
+ * objects like `new Aquifer.FluidStatus(...)` and potentially others.
  *
- * startBlockX is at index 2, startBlockZ is at index 3.
+ * The bare "<init>" matched constructor calls indiscriminately. The @ModifyArg
+ * with index=2 then corrupted parameters of the WRONG constructor (likely an
+ * Aquifer.FluidStatus or FluidPicker-related object), causing:
+ *   ArrayIndexOutOfBoundsException: Index -130 out of bounds for length 315
+ *
+ * THE FIX: Instead of targeting <init> (fragile), we use @Redirect on the
+ * chunk.getPos() call in forChunk(). This returns a wrapped ChunkPos, so ALL
+ * position-dependent code in forChunk() (including startBlockX, startBlockZ,
+ * FluidPicker setup, etc.) consistently sees wrapped coordinates. This is both
+ * safer (unambiguous target) and more thorough (wraps everything, not just
+ * two constructor params).
  */
 @Mixin(NoiseChunk.class)
 public abstract class NoiseChunkMixin {
 
     /**
-     * Wrap startBlockX (constructor param index 2) in forChunk's call to new NoiseChunk(...).
+     * Redirect chunk.getPos() inside forChunk() to return a wrapped ChunkPos.
+     *
+     * This ensures all position-derived values in forChunk() use wrapped coordinates:
+     * - startBlockX / startBlockZ (passed to NoiseChunk constructor)
+     * - Any FluidPicker or Beardifier position computations
+     * - Aquifer grid setup coordinates
+     *
+     * The @Redirect targets ChunkAccess.getPos(), which is a specific, unambiguous
+     * method — unlike "<init>" which could match any constructor call.
+     *
+     * If forChunk() calls getPos() multiple times, ALL calls are redirected,
+     * ensuring complete position consistency throughout the method.
      */
-    @ModifyArg(
+    @Redirect(
             method = "forChunk",
-            at = @At(value = "INVOKE", target = "<init>"),
-            index = 2
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/chunk/ChunkPos;"
+            )
     )
-    private static int wrapStartBlockX(int startBlockX) {
+    private static ChunkPos wrapChunkPosInForChunk(ChunkAccess chunk) {
         if (TorusChunkGenerator.isTorusActive()) {
-            return WorldSize.wrapBlock(startBlockX);
+            ChunkPos real = chunk.getPos();
+            int wrappedChunkX = WorldSize.wrapChunk(real.x);
+            int wrappedChunkZ = WorldSize.wrapChunk(real.z);
+            if (wrappedChunkX != real.x || wrappedChunkZ != real.z) {
+                return new ChunkPos(wrappedChunkX, wrappedChunkZ);
+            }
+            return real;
         }
-        return startBlockX;
-    }
-
-    /**
-     * Wrap startBlockZ (constructor param index 3) in forChunk's call to new NoiseChunk(...).
-     */
-    @ModifyArg(
-            method = "forChunk",
-            at = @At(value = "INVOKE", target = "<init>"),
-            index = 3
-    )
-    private static int wrapStartBlockZ(int startBlockZ) {
-        if (TorusChunkGenerator.isTorusActive()) {
-            return WorldSize.wrapBlock(startBlockZ);
-        }
-        return startBlockZ;
+        return chunk.getPos();
     }
 }
