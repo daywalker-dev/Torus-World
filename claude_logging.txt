@@ -8,6 +8,22 @@
 
 ---
 
+Please create a comprehensive conversation memory log that captures everything we've discussed in this chat session. Include:
+
+- **The original problem/question and how it evolved.**
+- **Key insights, recommendations, and solutions we developed.**
+- **My working style, preferences, and communication patterns you observed.**
+- **Effective collaboration approaches we identified.**
+- **Any clarifications or corrections that changed the direction.**
+- **Specific project context or examples we discussed.**
+- **Templates, frameworks, or processes we established.**
+- **Next steps or follow-up areas identified.**
+
+Structure this as a reference document that I could share with you in a future conversation to quickly re-establish our working relationship and context. Focus on practical patterns and preferences that would help future interactions be more efficient.
+
+
+---
+
 ## Session 3 — February 24, 2026
 
 ### Problem Reported
