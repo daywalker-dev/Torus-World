@@ -128,6 +128,120 @@ Resources:
 └── assets/worldsize/lang/en_us.json              ← FIXED LOCATION
 ```
 
+## Session 3 Continued — Package Relocations in 1.21.11
+
+### Problem: `Cannot resolve symbol 'ChunkPos'`
+
+After applying the `@Redirect` fix, the code failed to compile because `ChunkPos` could not be found at the import path `net.minecraft.world.level.chunk.ChunkPos`.
+
+### Root Cause: Class Relocation in 1.21.11 Mojang Mappings
+
+In 1.21.11, `ChunkPos` was moved to a different package:
+- **Wrong (old path):** `net.minecraft.world.level.chunk.ChunkPos`
+- **Correct (1.21.11):** `net.minecraft.world.level.ChunkPos`
+
+This was confirmed by inspecting the mapped Minecraft jar:
+```bash
+jar tf ~/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-*.jar | grep -i chunkpos
+# Result: net/minecraft/world/level/ChunkPos.class
+```
+
+### Verified Class Locations (1.21.11 Mojang Mappings)
+
+| Class | Package |
+|-------|---------|
+| `ChunkPos` | `net.minecraft.world.level.ChunkPos` |
+| `ChunkAccess` | `net.minecraft.world.level.chunk.ChunkAccess` |
+| `NoiseChunk` | `net.minecraft.world.level.levelgen.NoiseChunk` |
+
+### Fix Applied
+
+Updated both the import AND the `@Redirect` target descriptor in `NoiseChunkMixin.java`:
+
+```java
+// Import fix
+import net.minecraft.world.level.ChunkPos;  // was: net.minecraft.world.level.chunk.ChunkPos
+
+// Target descriptor fix
+target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"
+//  was: ...getPos()Lnet/minecraft/world/level/chunk/ChunkPos;"
+```
+
+### Key Lesson
+**Always verify class locations from the actual mapped jar** rather than assuming paths from documentation or older versions. In Mojang mappings, classes can be relocated between versions. Use:
+```bash
+jar tf <mapped-minecraft-jar> | grep -i <classname>
+```
+
+### How to Find the Mapped Jar
+```bash
+find ~/.gradle -path "*loom*" -name "*minecraft-merged*" -name "*.jar" | grep mappings
+```
+
+---
+
+## Session 3 Continued — Crash Persists After @Redirect Fix
+
+### Problem
+After fixing the `ChunkPos` package path, the crash persists:
+```
+ArrayIndexOutOfBoundsException: Index -139 out of bounds for length 315
+    at Aquifer$NoiseBasedAquifer.computeSubstance(Aquifer.java:188)
+    at NoiseChunk.method_40530(NoiseChunk.java:158)
+    at MaterialRuleList.calculate(MaterialRuleList.java:13)
+    at NoiseChunk.getInterpolatedState(NoiseChunk.java:180)
+    at NoiseBasedChunkGenerator.doFill(NoiseBasedChunkGenerator.java:399)
+    at NoiseBasedChunkGenerator.method_38332(NoiseBasedChunkGenerator.java:347)
+```
+
+The index changed (-130 → -139) but the crash pattern is identical. This confirms:
+1. The `@Redirect` on `getPos()` IS matching (the index changed, meaning wrapping is happening)
+2. But there's a **coordinate mismatch** between where NoiseChunk thinks it is vs where `doFill` iterates
+
+### Bytecode Analysis of `forChunk()`
+
+Confirmed via `javap -c` that `forChunk()` in 1.21.11:
+```
+11: invokevirtual  ChunkAccess.getPos:()Lnet/minecraft/world/level/ChunkPos;
+14: astore 7
+...
+35: invokevirtual  ChunkPos.getMinBlockX:()I
+...
+40: invokevirtual  ChunkPos.getMinBlockZ:()I
+```
+
+So `forChunk()` calls `chunk.getPos()` → stores in local var 7 → calls `getMinBlockX()`/`getMinBlockZ()` on the result. Our `@Redirect` successfully wraps the `ChunkPos`, so `NoiseChunk` is constructed with wrapped startBlockX/startBlockZ.
+
+### Root Cause Hypothesis: Coordinate Mismatch in `doFill()`
+
+The Aquifer grid is set up during NoiseChunk construction using wrapped coordinates (e.g., position 0-1023). But `doFill()` in `NoiseBasedChunkGenerator` computes block positions from the **real chunk's position** (e.g., chunk at X=1024+), NOT from the NoiseChunk's internal wrapped coordinates.
+
+The flow:
+1. `forChunk()` creates NoiseChunk with wrapped pos → Aquifer grid covers wrapped range (e.g., 0..15)
+2. `doFill()` iterates over the real chunk's block positions (e.g., 1024..1039)
+3. `computeSubstance()` receives real coords (1024+) but Aquifer grid expects wrapped coords (0..15)
+4. Grid index = (realCoord - wrappedGridStart) → (1024 - 0) / cellSize → massive negative or OOB index
+
+### Next Steps: Decompile `doFill()` and `computeSubstance()`
+
+Need to examine:
+1. **`NoiseBasedChunkGenerator.doFill()`** — how it computes X/Z for each block
+2. **`Aquifer$NoiseBasedAquifer.computeSubstance()`** — how it converts block coords to grid indices
+
+Possible fixes:
+- **Option A:** Also mixin `doFill()` to wrap coordinates passed to NoiseChunk methods
+- **Option B:** Mixin `Aquifer$NoiseBasedAquifer.computeSubstance()` to wrap input coordinates
+- **Option C:** Wrap at a higher level — intercept the chunk passed to `fillFromNoise()` so both NoiseChunk AND doFill see consistent wrapped positions
+
+### Commands to Run Next
+```bash
+cd /tmp
+javap -c -p net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator.class | sed -n '/doFill/,/^  [a-z]/p' | head -100
+javap -c -p net/minecraft/world/level/levelgen/Aquifer\$NoiseBasedAquifer.class | sed -n '/computeSubstance/,/^  [a-z]/p' | head -60
+```
+
+---
+
 ## Known Issues / Follow-Up
 1. Structure generation may not wrap correctly
 2. Entity wrapping only covers players (not mobs/projectiles)
